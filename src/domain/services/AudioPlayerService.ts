@@ -80,6 +80,15 @@ export interface AudioPlayerService {
   /** O anki kuyruk ve çalan konum. */
   getQueue(): Promise<QueueSnapshot>;
 
+  /**
+   * Saklanmış kuyruğu geri yükler — OYNATMADAN.
+   *
+   * Uygulama açılışında çağrılır. `setQueue`'dan iki farkı vardır: öğelerin
+   * kaynağını (`context`/`user`) korur ve oynatmayı BAŞLATMAZ — kullanıcı
+   * uygulamayı açtı diye ses çalmaya başlamamalı.
+   */
+  restoreQueue(items: readonly QueueItem[], index: number): Promise<void>;
+
   // --- taşıma -------------------------------------------------------------
 
   resume(): Promise<void>;

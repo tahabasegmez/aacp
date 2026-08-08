@@ -219,6 +219,24 @@ export class TrackPlayerAudioService implements AudioPlayerService {
     }
   }
 
+  async restoreQueue(items: readonly QueueItem[], index: number): Promise<void> {
+    if (items.length === 0) {
+      return;
+    }
+    const start = Math.max(0, Math.min(index, items.length - 1));
+
+    await TrackPlayer.setQueue(items.map(episodeToTrack));
+    // Konuma yerleşilir ama `play()` ÇAĞRILMAZ: uygulamayı açmak oynatma
+    // isteği değildir. Kullanıcı oynata bastığında kuyruk çoktan hazırdır.
+    await TrackPlayer.skip(start);
+
+    const target = items[start].episode;
+    this.update({
+      currentEpisodeId: target.id,
+      durationSec: target.durationSec,
+    });
+  }
+
   /**
    * Oynatma kartını (kilit ekranı / CarPlay) açıkça tazeler.
    *

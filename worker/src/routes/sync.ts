@@ -18,6 +18,10 @@ export const SYNC_COLLECTIONS = [
   'playlists',
   // Kullanıcı tercihleri; her tercih ayrı kayıttır (anahtar = tercih adı).
   'preferences',
+  // Oynatma sırası — kullanıcı başına TEK kayıt (`current`). Sıra bir bütündür;
+  // öğeleri ayrı ayrı taşımak iki cihazın düzenlemesi birleşince kimsenin
+  // kurmadığı bir sıra üretirdi.
+  'queue',
 ] as const;
 export type SyncCollection = (typeof SYNC_COLLECTIONS)[number];
 

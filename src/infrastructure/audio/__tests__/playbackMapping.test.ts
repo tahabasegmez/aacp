@@ -52,7 +52,7 @@ describe('episodeToTrack', () => {
   });
 
   it('şov adı yoksa yayıncıya düşer', () => {
-    expect(episodeToTrack({ episode, source: 'context' }).artist).toBe('Anadolu Ajansı');
+    expect(episodeToTrack({ episode, source: 'context' }).artist).toBe('AACP');
   });
 
   it('albüm alanı doldurulmaz (kartta şov adı iki kez çıkardı)', () => {

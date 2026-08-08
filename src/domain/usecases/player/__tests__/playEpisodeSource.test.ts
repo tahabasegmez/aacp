@@ -16,6 +16,10 @@ class FakePlayer implements AudioPlayerService {
     this.played = episodes[index] ?? null;
     this.startedAt = startPositionSec;
   }
+  async restoreQueue(items: readonly { episode: Episode }[], index: number) {
+    this.queue = items.map(item => item.episode);
+    this.played = this.queue[index] ?? null;
+  }
   async enqueue() {}
   async removeAt() {}
   async moveItem() {}

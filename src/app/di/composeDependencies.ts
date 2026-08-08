@@ -56,11 +56,13 @@ import {
   PreferencesRepositoryImpl,
   PreferencesSyncAdapter,
   ProgressSyncAdapter,
+  QueueSyncAdapter,
   UserRepositoryImpl,
   SyncEngine,
   RemoteShowCatalogRepository,
   InMemoryFeedCacheDataSource,
   PlaybackProgressRepositoryImpl,
+  PlaybackQueueRepositoryImpl,
   PodcastFeedRepositoryImpl,
   RemoteCatalogDataSource,
   RssFeedDataSource,
@@ -85,6 +87,7 @@ import {
 } from '@infrastructure';
 import { AppDependencies } from '@presentation/di';
 import { bindPlaybackQueueSync } from '../playback/bindPlaybackQueueSync';
+import { bindQueuePersistence } from '../playback/bindQueuePersistence';
 import { bindResumeOnEpisodeChange } from '../playback/bindResumeOnEpisodeChange';
 
 /**
@@ -139,7 +142,8 @@ export const composeDependencies = (): AppDependencies => {
   // Playlist adaptörü ayrıca tutulur çünkü silmeleri repository ona bildirir.
   const playlistSync = new PlaylistSyncAdapter(storage);
   const syncEngine = new SyncEngine(
-    new ApiSyncTransport(api),
+    // Misafirde senkron KAPALIDIR: veri yalnızca cihazda kalır.
+    new ApiSyncTransport(api, userRepository),
     [
       new ProgressSyncAdapter(storage),
       new FollowsSyncAdapter(storage),
@@ -148,6 +152,8 @@ export const composeDependencies = (): AppDependencies => {
       playlistSync,
       // Tercihler: misafirde cihazda kalır, hesap açılınca hesaba taşınır.
       new PreferencesSyncAdapter(storage),
+      // Sıraya eklenenler: kullanıcı başına tek kayıt, sıra bir bütün olarak taşınır.
+      new QueueSyncAdapter(storage),
     ],
     storage,
     logger,
@@ -180,6 +186,8 @@ export const composeDependencies = (): AppDependencies => {
     { remoteUrl: resolveCatalogUrl(env) ?? '', ttlMs: env.remoteCatalogTtlMs },
   );
   const progressRepo = new PlaybackProgressRepositoryImpl(storage);
+  // Kuyruğun kalıcı kopyası — oynatıcı belleği uygulama kapanınca boşalır.
+  const queueRepo = new PlaybackQueueRepositoryImpl(storage);
   const followRepo = new FollowRepositoryImpl(storage);
   const downloadRepo = new DownloadRepositoryImpl(new BlobUtilDownloader(), storage);
   // Kullanıcı listeleri — "Sonra dinle" burada bir sistem listesi olarak yaşar.
@@ -249,6 +257,8 @@ export const composeDependencies = (): AppDependencies => {
   // Kuyruk uygulama dışından da ilerleyebilir (kilit ekranı, araç, bölüm sonu);
   // arayüzün yansıması bunu ancak buradan öğrenir.
   bindPlaybackQueueSync({ audioPlayer, logger });
+  // Kuyruk cihazda saklanır ve açılışta oynatıcıya geri yüklenir.
+  bindQueuePersistence({ audioPlayer, queueRepository: queueRepo, logger });
 
   return {
     resolveVoiceQuery,

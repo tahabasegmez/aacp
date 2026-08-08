@@ -36,6 +36,7 @@ kullanılır. "Hızlı olsun" tek başına gerekçe değildir.
 |---|---|---|
 | `progress` | Kaldığın yer / dinlendi | **En yüksek yazma hacmi**: bir bölüm dinlenirken konum sürekli güncellenir. İlişkisiz, anahtarla erişilir, join gerektirmez |
 | `preferences` | Kullanıcı tercihleri | Küçük bayraklar; sorgulanmaz, kullanıcı başına okunur |
+| `queue` | Oynatma sırası | Her ekleme/sürükleme bir yazma; ilişkisel sorgusu yok. Kullanıcı başına **tek kayıt** (`current`) — sıra bir bütündür (§2.1) |
 
 Bu iki koleksiyon için üç kademeli bir yerleşim vardır ve sırayla denenir:
 
@@ -81,8 +82,25 @@ sözleşmeyi sunar: **delta okuma + son-yazan-kazanır yazma**. Bir koleksiyonu
 taşımak, [`resolveStore`](../worker/src/storage/resolveStore.ts) içindeki
 yerleşim tablosunda tek satır değiştirmektir; rota kodu ve istemci etkilenmez.
 
+> **MİSAFİR VERİSİ SUNUCUYA HİÇ GİTMEZ.** Senkron yalnızca bir HESAP oturumu
+> varken açıktır (`ApiSyncTransport.enabled`). Uygulama katalog, telemetri ve
+> bildirim için cihaz kimliğiyle anonim bir oturum açabilir; o oturum senkronu
+> da açık tutunca misafirin kütüphanesi sunucuya yazılıyordu. Kayıt olurken
+> veri kaybolmaz: `adoptLocalInto()` tüm yerel veriyi hesaba yükler.
+
 **KV bağlanmamışsa** NoSQL koleksiyonları Postgres'e düşer. Eksik yapılandırma
 servisi düşürmez; yalnızca yerleşim değişir ve `/v1/health` bunu bildirir.
+
+### 2.1 Kuyruk neden tek kayıt?
+
+`queue` koleksiyonunda kullanıcı başına yalnızca bir kayıt vardır. Öğeleri ayrı
+ayrı senkronlamak sıralamayı bozardı: 3. sırayı silen cihazla 2. sıraya ekleyen
+cihazın kayıtları birleştiğinde ortaya **kimsenin kurmadığı** bir sıra çıkar.
+Sıra bir bütündür; son yazan kazanır.
+
+> Bu yüzden istemci, içerik gerçekten değişmediyse damgayı ileri almaz
+> (`PlaybackQueueRepositoryImpl.save`). Aksi halde uygulamayı açmak bile
+> kuyruğu "en yeni" yapar ve başka cihazda kurulmuş daha yeni bir sırayı ezerdi.
 
 ### Kayıt gövdesi JSON'dur
 

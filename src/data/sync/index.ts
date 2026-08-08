@@ -6,3 +6,4 @@ export * from './MembershipSyncAdapter';
 export * from './adapters';
 export * from './PlaylistSyncAdapter';
 export * from './PreferencesSyncAdapter';
+export * from './QueueSyncAdapter';

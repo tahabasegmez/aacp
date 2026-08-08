@@ -13,6 +13,7 @@ import type { SyncStore } from './SyncStore';
  * |---------------|----------|--------------------------------------------------|
  * | `progress`    | NoSQL    | En yüksek yazma hacmi; ilişkisiz, anahtarla erişilir |
  * | `preferences` | NoSQL    | Küçük, kullanıcıya özel bayraklar; sorgulanmaz    |
+ * | `queue`       | NoSQL    | Her ekleme/sürükleme bir yazma; ilişkisel sorgusu yok |
  * | `follows`     | Postgres | "Bu şovu kimler takip ediyor" sorgulanır (bildirim) |
  * | `playlists`   | Postgres | Kütüphane verisi; raporlanır, izdüşürülebilir      |
  * | `saved`       | Postgres | Playlist sisteminin parçası (eski istemciler için) |
@@ -23,6 +24,7 @@ import type { SyncStore } from './SyncStore';
 const PLACEMENT: Record<SyncCollection, 'nosql' | 'postgres'> = {
   progress: 'nosql',
   preferences: 'nosql',
+  queue: 'nosql',
   follows: 'postgres',
   playlists: 'postgres',
   saved: 'postgres',

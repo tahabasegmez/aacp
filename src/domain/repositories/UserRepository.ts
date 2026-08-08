@@ -20,6 +20,16 @@ export interface UserRepository {
   /** Sunucu destekli hesap işlemleri kullanılabilir mi. */
   readonly accountsAvailable: boolean;
 
+  /**
+   * Cihazda bir HESAP oturumu var mı? Misafir (anonim kullanıcı) sayılmaz.
+   *
+   * SENKRON'dur ve yerel profil önbelleğinden okur — bilerek: "bu veri
+   * sunucuya gider mi" kararı her senkron turunda, her koleksiyon için ve
+   * React ağacı monte edilmeden de (CarPlay) verilebilmeli. Ağa çıkan bir
+   * kontrol burada hem yavaş hem de çevrimdışıyken yanlış cevap verirdi.
+   */
+  hasAccount(): boolean;
+
   /** O anki kullanıcı (anonim olabilir); hiç oturum yoksa null. */
   current(): Promise<Result<User | null>>;
 

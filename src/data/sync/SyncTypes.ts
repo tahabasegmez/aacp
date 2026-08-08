@@ -13,6 +13,7 @@ export const SYNC_COLLECTIONS = [
   'saved',
   'playlists',
   'preferences',
+  'queue',
 ] as const;
 export type SyncCollection = (typeof SYNC_COLLECTIONS)[number];
 

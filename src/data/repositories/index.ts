@@ -12,3 +12,4 @@ export * from './PreferencesRepositoryImpl';
 export * from './UserRepositoryImpl';
 export * from './VastAdRepository';
 export * from './ApiDeviceSessionRepository';
+export * from './PlaybackQueueRepositoryImpl';

@@ -43,13 +43,17 @@ kullanıcı anonimse YENİ kullanıcı yaratılmaz, mevcut kayıt yükseltilir.
 > Sunucu tarafındaki ayrıntı (hangi tablo, PostgreSQL mi NoSQL mi) için bkz.
 > [VERI-MIMARISI.md](VERI-MIMARISI.md).
 
+> **Sunucu sütunu YALNIZCA hesap açıkken geçerlidir.** Misafirde her şey
+> cihazda kalır; senkron kapalıdır (§3.1).
+
 | Veri | Yer | Sebep |
 |---|---|---|
 | Kaldığın yer (progress) | cihaz + **sunucu** | Cihazlar arası devam |
 | Takip edilen şovlar | cihaz + **sunucu** | Kütüphane her cihazda aynı |
 | Sonra dinle | cihaz + **sunucu** | Sistem listesi, senkronlanır |
 | Kullanıcı listeleri | cihaz + **sunucu** | Playlist senkronu |
-| Tercihler | cihaz + **sunucu** | Bkz. [TERCIHLER.md](TERCIHLER.md) — misafirde de hatırlanır |
+| Sıraya eklenenler (kuyruk) | cihaz + **sunucu** | Telefonda sıraya alınan tablette de sırada olmalı |
+| Tercihler | cihaz + **sunucu** | Bkz. [TERCIHLER.md](TERCIHLER.md) |
 | **İndirilen dosyalar** | **yalnızca cihaz** | Dosyalar cihaza özgü; sunucuya taşınmaz |
 | Oturum jetonu | yalnızca cihaz | Güvenlik |
 | Profil önbelleği | cihaz | Çevrimdışı açılışta ad/e-posta bilinsin |
@@ -57,10 +61,30 @@ kullanıcı anonimse YENİ kullanıcı yaratılmaz, mevcut kayıt yükseltilir.
 İndirmelerin senkronlanmaması bilinçlidir: yerel dosya yolları cihaza (ve iOS'ta
 kurulum container'ına) bağlıdır, başka cihazda anlamsızdır.
 
+### 3.1 Misafirde senkron KAPALIDIR
+
+Kütüphane verisi bir HESABA aittir; hesap yoksa gidecek bir yer de yoktur.
+Senkron taşıması yalnızca sunucu yapılandırılmışsa **ve** bir hesap oturumu
+varsa açılır (`ApiSyncTransport.enabled`).
+
+Bu ayrım gereklidir çünkü uygulama, katalog/telemetri/bildirim için cihaz
+kimliğiyle **anonim bir oturum** açabilir. O oturum senkronu da açık tutunca
+misafirin kaldığı yeri, listeleri, kuyruğu ve takipleri sunucuya yazılıyordu.
+
+Hesabın olup olmadığı yerel profil önbelleğinden, **senkron** olarak okunur
+(`UserRepository.hasAccount()`): "bu veri sunucuya gider mi" kararı her senkron
+turunda, React ağacı monte edilmeden de (CarPlay) verilebilmeli.
+
+> Ayırt edici alan **e-postadır**: anonim kullanıcı da sunucuda gerçek bir
+> kayıttır ve `id` taşır, ama hesaba bağlanana kadar e-postası yoktur.
+
+Kayıt olurken veri kaybolmaz: giriş tamamlandıktan **sonra** çalışan
+`adoptLocalInto()` imleçleri sıfırlar ve tüm yerel veriyi hesaba yükler.
+
 ## 4. Senkron
 
 Model: **delta + son-yazan-kazanır**. Koleksiyonlar:
-`progress`, `follows`, `playlists`, `preferences`.
+`progress`, `follows`, `playlists`, `preferences`, `queue`.
 
 > **"Sonra dinle" ayrı bir koleksiyon DEĞİLDİR.** O, playlist sisteminin sistem
 > listesidir (`SAVED_PLAYLIST_ID`) ve `playlists` içinde taşınır. Ayrı bir depo

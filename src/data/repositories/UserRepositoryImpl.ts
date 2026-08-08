@@ -54,6 +54,20 @@ export class UserRepositoryImpl implements UserRepository {
     return this.api.enabled;
   }
 
+  /**
+   * Cihazda hesap oturumu var mı?
+   *
+   * Ayırt edici alan E-POSTADIR: anonim kullanıcı da sunucuda gerçek bir
+   * kayıttır ve `id` taşır, ama hesaba bağlanana kadar e-postası yoktur
+   * (bkz. `isAnonymous`). Önbellek çıkışta silinir, giriş/kayıtta yazılır.
+   */
+  hasAccount(): boolean {
+    // `isAnonymous` KULLANILMAZ: o, kullanıcı YOKKEN de false döner
+    // (`!!user && !user.email`) ve hiç oturum açılmamış cihaz "hesaplı"
+    // sayılırdı. Burada aranan şey açıkça bir e-postanın varlığıdır.
+    return Boolean(this.readCache()?.email);
+  }
+
   async current(): Promise<Result<User | null>> {
     // Sunucu kapalıysa yalnızca önbellekteki profil bilinir.
     if (!this.api.enabled) {
