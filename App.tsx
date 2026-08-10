@@ -2,7 +2,6 @@
  * AACP — Anadolu Ajansı Podcast
  *
  * Bu dosya yalnızca giriş noktasıdır; tüm kurulum src/app/AppRoot içindedir.
- * Mimari için: docs/ARCHITECTURE.md
  */
 import React from 'react';
 import { StatusBar, useColorScheme } from 'react-native';

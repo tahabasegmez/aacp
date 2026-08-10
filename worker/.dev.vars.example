@@ -4,7 +4,6 @@
 # GİRMEZ. Yayınlanan Worker bu dosyayı kullanmaz; orada değerler
 # `wrangler secret put <AD>` ile eklenir.
 #
-# Ayrıntı: docs/CLOUDFLARE-SUPABASE-KURULUM.md
 
 # Supabase → Project Settings → API
 SUPABASE_ANON_KEY=

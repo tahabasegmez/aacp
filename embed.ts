@@ -34,7 +34,7 @@
  * }
  * ```
  *
- * Ayrıntılı kurulum (native yapılandırma, ses, CarPlay): docs/EMBEDDING.md
+ * Ayrıntılı kurulum: README.md
  */
 
 // --- React ağacı ------------------------------------------------------------

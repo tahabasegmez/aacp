@@ -24,7 +24,7 @@ import { PodcastProviders } from './PodcastProviders';
  *
  * Aynı özellik başka bir RN uygulamasının içine gömülecekse bu dosya KULLANILMAZ;
  * bunun yerine `PodcastProviders` + `PodcastNavigator` doğrudan kullanılır
- * (bkz. docs/EMBEDDING.md). İki mod da aynı parçaları paylaşır — tek fark
+ *. İki mod da aynı parçaları paylaşır — tek fark
  * NavigationContainer'ın kime ait olduğudur.
  */
 export const AppRoot: React.FC = () => (

@@ -135,7 +135,7 @@ export const composeDependencies = (): AppDependencies => {
   // tek parça çaldığını varsaydığı için kuyruğun oynatıcıya taşınmasıyla
   // uyumsuz kaldı ve kaldırıldı. Geri eklenecekse doğru yer yine burasıdır:
   // portu implement eden bir sarmalayıcı, kuyruk çağrılarını da devretmeli
-  // (bkz. docs/REKLAM.md).
+  //.
   const audioPlayer = new TrackPlayerAudioService(logger);
 
   // Cihazlar arası senkron: kaldığın yer, takipler, sonra dinle, listeler.

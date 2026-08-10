@@ -2,7 +2,7 @@
  * Şov kataloğunun taşıdığı meta veri.
  *
  * Katalog artık UYGULAMAYA GÖMÜLÜ DEĞİLDİR: şovlar sunucudaki `shows`
- * tablosunda yaşar ve `/v1/catalog` ucundan gelir (bkz. docs/VERI-MIMARISI.md).
+ * tablosunda yaşar ve `/v1/catalog` ucundan gelir.
  * Şov eklemek bir veritabanı satırı işlemidir; uygulama güncellemesi gerekmez.
  *
  * Bu tip hem uzak yanıtın çözülmesinde hem de `Show` entity'sine dönüşümde

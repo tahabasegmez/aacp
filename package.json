@@ -2,7 +2,7 @@
   "name": "AACP",
   "version": "0.0.1",
   "private": true,
-  "//embed": "Podcast özelliği başka bir RN uygulamasına gömülebilir; kararlı yüzey embed.ts'tir (bkz. docs/EMBEDDING.md). Kaynak TypeScript olarak tüketilir — gömen uygulama kendi Metro/Babel'iyle derler.",
+  "//embed": "Podcast özelliği başka bir RN uygulamasına gömülebilir; kararlı yüzey embed.ts'tir. Kaynak TypeScript olarak tüketilir — gömen uygulama kendi Metro/Babel'iyle derler.",
   "main": "embed.ts",
   "exports": {
     ".": "./embed.ts",

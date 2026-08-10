@@ -16,7 +16,7 @@ export interface CarPlayListItem {
    *
    * `image` alanı BİLİNÇLİ olarak kullanılmaz: onu native taraf RN'in
    * `RCTConvert UIImage` yolundan geçirir ve o yol uzak adresi reddedip
-   * `file://` adresinde çökebiliyor (bkz. docs/CARPLAY.md). `imgUrl` görseli
+   * `file://` adresinde çökebiliyor. `imgUrl` görseli
    * doğrudan okur; buraya DAİMA yerel bir dosya adresi verilir.
    */
   imgUrl?: string;

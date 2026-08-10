@@ -104,7 +104,7 @@ class TabList {
       this.template.updateSections(asListSections(sections));
     } catch (error) {
       // Kapaklar çizilemezse sekmeyi boş bırakma: kapaksız da olsa içerik
-      // göster (bkz. docs/CARPLAY.md).
+      // göster.
       this.logger.error(`CarPlay: "${this.title}" kapakları çizilemedi`, error);
       this.template.updateSections(asListSections(withoutImages(sections)));
     }

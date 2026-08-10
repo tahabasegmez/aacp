@@ -1,7 +1,7 @@
 # AACP — Cloudflare Workers yapılandırması
 #
 # Gizli değerler BURAYA YAZILMAZ; `wrangler secret put <AD>` ile eklenir
-# (bkz. docs/CLOUDFLARE-SUPABASE-KURULUM.md).
+#.
 # ...
 name = "aacp-api"
 main = "src/index.ts"
