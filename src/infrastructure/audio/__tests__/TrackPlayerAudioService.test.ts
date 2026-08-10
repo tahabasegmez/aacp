@@ -35,6 +35,40 @@ describe('TrackPlayerAudioService', () => {
     expect(names).toContain('updateOptions');
   });
 
+  /**
+   * Kesinti davranışı bir YAPILANDIRMA kararıdır ve sessizce geri alınabilir:
+   * `androidAudioContentType` varsayılana (`Music`) dönerse Android kısa
+   * kesintilerde podcast'i duraklatmak yerine sesini kısar ve kullanıcı o
+   * cümleyi kaçırır. Bu yüzden ayarlar teste bağlanır.
+   */
+  it('kesinti yönetimi platformların kendi mekanizmasına bırakılır', async () => {
+    const svc = new TrackPlayerAudioService();
+    await svc.setup();
+
+    const setup = tp.__getCalls().find(c => c[0] === 'setupPlayer')?.[1] as {
+      autoHandleInterruptions?: boolean;
+      androidAudioContentType?: string;
+      iosCategoryMode?: string;
+    };
+
+    // Duraklat/devam et kararını iOS AVAudioSession, Android ise ExoPlayer'ın
+    // ses odağı yönetimi verir — kendi bayrağımızı tutmuyoruz.
+    expect(setup.autoHandleInterruptions).toBe(true);
+    // Konuşma içeriği: kısa kesintide DURAKLAT, sesi kısma.
+    expect(setup.androidAudioContentType).toBe('speech');
+    expect(setup.iosCategoryMode).toBe('spokenAudio');
+  });
+
+  it('Android kısa kesintide de duraklama olayı üretir', async () => {
+    const svc = new TrackPlayerAudioService();
+    await svc.setup();
+
+    const options = tp.__getCalls().find(c => c[0] === 'updateOptions')?.[1] as {
+      android?: { alwaysPauseOnInterruption?: boolean };
+    };
+    expect(options.android?.alwaysPauseOnInterruption).toBe(true);
+  });
+
   it('setQueue: kuyruğu kütüphaneye verir ve konuma atlar', async () => {
     const svc = new TrackPlayerAudioService();
     await svc.setup();

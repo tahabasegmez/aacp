@@ -51,6 +51,15 @@ const AppKilledPlaybackBehavior = {
   PausePlayback: 'pause',
 };
 
+/** Android ses içerik türü — kesintide duraklama/kısılma davranışını belirler. */
+const AndroidAudioContentType = {
+  Music: 'music',
+  Speech: 'speech',
+  Sonification: 'sonification',
+  Movie: 'movie',
+  Unknown: 'unknown',
+};
+
 const IOSCategory = { Playback: 'playback', Ambient: 'ambient' };
 const IOSCategoryMode = { Default: 'default', SpokenAudio: 'spokenAudio' };
 
@@ -172,6 +181,7 @@ module.exports = {
   Event,
   Capability,
   AppKilledPlaybackBehavior,
+  AndroidAudioContentType,
   IOSCategory,
   IOSCategoryMode,
 };

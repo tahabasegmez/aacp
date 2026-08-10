@@ -6,6 +6,7 @@ import {
   QueueSnapshot,
 } from '@domain/services';
 import TrackPlayer, {
+  AndroidAudioContentType,
   AppKilledPlaybackBehavior,
   Event,
   IOSCategory,
@@ -100,9 +101,36 @@ export class TrackPlayerAudioService implements AudioPlayerService {
     // iOS: Playback kategorisi + SpokenAudio modu → arka plan sesi VE Now Playing
     // (kilit ekranı + Dynamic Island medya kartı). Podcast için doğru profil.
     await TrackPlayer.setupPlayer({
+      /**
+       * KESİNTİ YÖNETİMİ — telefonda başka bir ses çalarsa podcast durur,
+       * o ses bitince kaldığı yerden devam eder.
+       *
+       * Bu iş elle YAPILMAZ; platformların kendi mekanizması kullanılır:
+       *  - iOS: `AVAudioSession` kesinti bildirimi. Kesinti başlayınca sistem
+       *    oturumu askıya alır (oynatma kendiliğinden durur); bitişte sistem
+       *    "devam edilebilir" derse kütüphane `play()` çağırır.
+       *  - Android: ExoPlayer'ın ses odağı (audio focus) yönetimi. Odak
+       *    kaybedilince duraklar, geri alınınca devam eder.
+       *
+       * İkisinin de inceliği "kullanıcı zaten duraklatmış mıydı" ayrımıdır ve
+       * ikisi de bunu kendisi bilir — kendi bayrağımızı tutmak, kullanıcının
+       * bilerek duraklattığı bölümü bildirim sesi sonrası çalmaya başlamak
+       * demekti.
+       */
       autoHandleInterruptions: true,
       iosCategory: IOSCategory.Playback,
       iosCategoryMode: IOSCategoryMode.SpokenAudio,
+      /**
+       * Android'de KISA kesintilerde (bildirim, navigasyon anonsu) sesin
+       * kısılması yerine DURAKLAMASI için içerik türü konuşma olmalı.
+       *
+       * Varsayılan `Music` ile ExoPlayer `AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK`
+       * geldiğinde yalnızca sesi kısar ("ducking"). Müzikte doğru davranış
+       * budur ama konuşmada değil: kısılmış bir podcast anlaşılmaz, kullanıcı
+       * o cümleyi kaçırır. `Speech` ile aynı kesinti duraklama üretir ve
+       * bitince oynatma devam eder.
+       */
+      androidAudioContentType: AndroidAudioContentType.Speech,
     });
     try {
       await TrackPlayer.updateOptions({
@@ -118,6 +146,9 @@ export class TrackPlayerAudioService implements AudioPlayerService {
         android: {
           appKilledPlaybackBehavior:
             AppKilledPlaybackBehavior.StopPlaybackAndRemoveNotification,
+          // Kısa kesintilerde de duraklama olayı üretilsin — `Speech` içerik
+          // türüyle birlikte "her kesintide durakla" davranışını tamamlar.
+          alwaysPauseOnInterruption: true,
         },
       });
     } catch (error) {
