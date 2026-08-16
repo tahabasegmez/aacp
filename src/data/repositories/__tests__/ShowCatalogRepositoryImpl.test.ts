@@ -1,6 +1,6 @@
 import { FeedCatalogEntry } from '@core/config';
 import { InMemoryKeyValueStorage } from '@infrastructure';
-import { RemoteShowCatalogRepository } from '../RemoteShowCatalogRepository';
+import { ShowCatalogRepositoryImpl } from '../ShowCatalogRepositoryImpl';
 import { RemoteCatalogDataSource } from '../../datasources';
 
 const entry = (slug: string): FeedCatalogEntry => ({
@@ -25,7 +25,7 @@ const makeSut = (remote: FakeRemote, ttlMs = 60_000) => {
   const storage = new InMemoryKeyValueStorage();
   return {
     storage,
-    repo: new RemoteShowCatalogRepository(
+    repo: new ShowCatalogRepositoryImpl(
       remote as unknown as RemoteCatalogDataSource,
       storage,
       noopLogger,
@@ -34,7 +34,7 @@ const makeSut = (remote: FakeRemote, ttlMs = 60_000) => {
   };
 };
 
-describe('RemoteShowCatalogRepository', () => {
+describe('ShowCatalogRepositoryImpl', () => {
   it('katalogu sunucudan çeker', async () => {
     const remote = new FakeRemote(() => [entry('a'), entry('b')]);
     const { repo } = makeSut(remote);

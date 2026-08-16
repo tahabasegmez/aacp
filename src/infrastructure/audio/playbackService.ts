@@ -42,6 +42,17 @@ export default async function playbackService(): Promise<void> {
     TrackPlayer.skipToPrevious(),
   );
 
+  // Android Auto listesinden bölüm seçimi.
+  TrackPlayer.addEventListener(Event.RemotePlayId, async ({ id }) => {
+    const queue = await TrackPlayer.getQueue();
+    const index = queue.findIndex(track => String(track.id) === id);
+    if (index < 0) {
+      return;
+    }
+    await TrackPlayer.skip(index);
+    await TrackPlayer.play();
+  });
+
   // Bölüm sonunda sıradakine geçmek de kütüphanenin işi: kuyruk onda olduğu
   // için `PlaybackQueueEnded`'i elle karşılamaya gerek kalmadı.
 }

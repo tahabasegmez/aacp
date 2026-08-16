@@ -37,14 +37,14 @@ export interface DeviceSessionApi {
 }
 
 /**
- * ApiDeviceSessionRepository — oynatma oturumunu sunucuda tutar.
+ * DeviceSessionRepositoryImpl — oynatma oturumunu sunucuda tutar.
  *
  * Cihazın ADI burada üretilir: ayrı bir cihaz-bilgisi bağımlılığı eklemek
  * yerine platformdan türetilen okunabilir bir ad kullanılır. Kullanıcı için
  * anlamlı olan "hangi telefon" değil "hangi platform"dur; liste zaten kendi
  * cihazını "bu cihaz" olarak işaretler.
  */
-export class ApiDeviceSessionRepository implements DeviceSessionRepository {
+export class DeviceSessionRepositoryImpl implements DeviceSessionRepository {
   constructor(
     private readonly api: DeviceSessionApi,
     private readonly platform: string,

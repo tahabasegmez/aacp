@@ -3,7 +3,7 @@ import { Episode, SAVED_PLAYLIST_ID, playlistHasEpisode } from '@domain/entities
 import { PlaylistRepository, SavedEpisodesRepository } from '@domain/repositories';
 
 /**
- * "Sonra dinle"yi PLAYLIST sistemi üzerinden sunar.
+ * SavedEpisodesRepositoryImpl — "Sonra dinle"yi PLAYLIST sistemi üzerinden sunar.
  *
  * NEDEN: "Sonra dinle" artık bağımsız bir depo değil, sistem playlist'idir
  * (`SAVED_PLAYLIST_ID`). Ayrı bir depo tutmak aynı veriyi iki yerde saklamak
@@ -12,7 +12,7 @@ import { PlaylistRepository, SavedEpisodesRepository } from '@domain/repositorie
  * Bu sınıf eski `SavedEpisodesRepository` portunu korur (use case'ler ve UI
  * değişmez) ama tüm okuma/yazmayı tek kaynağa yönlendirir.
  */
-export class PlaylistBackedSavedEpisodes implements SavedEpisodesRepository {
+export class SavedEpisodesRepositoryImpl implements SavedEpisodesRepository {
   constructor(private readonly playlists: PlaylistRepository) {}
 
   async list(): Promise<Result<readonly Episode[]>> {

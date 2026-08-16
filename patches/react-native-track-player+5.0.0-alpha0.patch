@@ -1,0 +1,115 @@
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/service/MusicService.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/service/MusicService.kt
+index b495b5a..ca06f16 100644
+--- a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/service/MusicService.kt
++++ b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/service/MusicService.kt
+@@ -20,6 +20,7 @@ import androidx.media3.common.util.UnstableApi
+ import androidx.media3.session.CacheBitmapLoader
+ import androidx.media3.session.LibraryResult
+ import androidx.media3.common.MediaItem
++import androidx.media3.common.MediaMetadata
+ import androidx.media3.common.Rating
+ import androidx.media3.common.util.BitmapLoader
+ import androidx.media3.exoplayer.ExoPlayer
+@@ -862,10 +863,94 @@ class MusicService : HeadlessJsMediaService() {
+         val service = this@MusicService
+     }
+ 
++    private fun browseChildren(): List<MediaItem> {
++        if (!this::player.isInitialized) return emptyList()
++        return player.items.mapIndexedNotNull { index, item ->
++            val id = item.mediaId ?: index.toString()
++            MediaItem.Builder()
++                .setMediaId(id)
++                .setMediaMetadata(
++                    MediaMetadata.Builder()
++                        .setTitle(item.title ?: id)
++                        .setArtist(item.artist)
++                        .setArtworkUri(item.artwork?.let { Uri.parse(it) })
++                        .setIsBrowsable(false)
++                        .setIsPlayable(true)
++                        .build()
++                )
++                .build()
++        }
++    }
++
+     private inner class InnerMediaSessionCallback : MediaLibrarySession.Callback {
+         // HACK: I'm sure most of the callbacks were not implemented correctly.
+         // ATM I only care that andorid auto still functions.
+ 
++        // AACP patch: Android Auto asks for a browse root before it shows the
++        // app. Without this override media3 answers ERROR_NOT_SUPPORTED and Auto
++        // reports "doesn't seem to be working". The root is empty on purpose:
++        // this library exposes no browse tree, so the app is now-playing only.
++        override fun onGetLibraryRoot(
++            session: MediaLibrarySession,
++            browser: MediaSession.ControllerInfo,
++            params: LibraryParams?
++        ): ListenableFuture<LibraryResult<MediaItem>> {
++            val root = MediaItem.Builder()
++                .setMediaId(BROWSE_ROOT_ID)
++                .setMediaMetadata(
++                    MediaMetadata.Builder()
++                        .setIsBrowsable(true)
++                        .setIsPlayable(false)
++                        .build()
++                )
++                .build()
++            return Futures.immediateFuture(LibraryResult.ofItem(root, params))
++        }
++
++        override fun onGetChildren(
++            session: MediaLibrarySession,
++            browser: MediaSession.ControllerInfo,
++            parentId: String,
++            page: Int,
++            pageSize: Int,
++            params: LibraryParams?
++        ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
++            val children = if (parentId == BROWSE_ROOT_ID) browseChildren() else emptyList()
++            return Futures.immediateFuture(
++                LibraryResult.ofItemList(ImmutableList.copyOf(children), params)
++            )
++        }
++
++        override fun onGetItem(
++            session: MediaLibrarySession,
++            browser: MediaSession.ControllerInfo,
++            mediaId: String
++        ): ListenableFuture<LibraryResult<MediaItem>> {
++            val item = browseChildren().find { it.mediaId == mediaId }
++            return Futures.immediateFuture(
++                if (item != null) LibraryResult.ofItem(item, null)
++                else LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE)
++            )
++        }
++
++        override fun onSetMediaItems(
++            mediaSession: MediaSession,
++            controller: MediaSession.ControllerInfo,
++            mediaItems: MutableList<MediaItem>,
++            startIndex: Int,
++            startPositionMs: Long
++        ): ListenableFuture<MediaSession.MediaItemsWithStartPosition> {
++            val mediaId = mediaItems.getOrNull(if (startIndex >= 0) startIndex else 0)?.mediaId
++            if (mediaId != null) {
++                emit(MusicEvents.BUTTON_PLAY_FROM_ID, Bundle().apply {
++                    putString("id", mediaId)
++                })
++            }
++            return Futures.immediateFuture(
++                MediaSession.MediaItemsWithStartPosition(emptyList(), 0, 0L)
++            )
++        }
++
+         override fun onDisconnected(
+             session: MediaSession,
+             controller: MediaSession.ControllerInfo
+@@ -1017,6 +1102,7 @@ class MusicService : HeadlessJsMediaService() {
+         const val STOP_FOREGROUND_GRACE_PERIOD_KEY = "stopForegroundGracePeriod"
+         const val PAUSE_ON_INTERRUPTION_KEY = "alwaysPauseOnInterruption"
+         const val AUTO_UPDATE_METADATA = "autoUpdateMetadata"
++        const val BROWSE_ROOT_ID = "aacp_root"
+         const val AUTO_HANDLE_INTERRUPTIONS = "autoHandleInterruptions"
+         const val ANDROID_AUDIO_CONTENT_TYPE = "androidAudioContentType"
+         const val IS_FOCUS_LOSS_PERMANENT_KEY = "permanent"

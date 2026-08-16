@@ -1,51 +1,31 @@
 import { Capability } from 'react-native-track-player';
 
 /**
- * Oynatma kartındaki (kilit ekranı, Dynamic Island, CarPlay, Android bildirimi)
- * TAŞIMA TUŞLARININ tek karar noktası.
- *
- * Ayrı bir dosyada duruyor çünkü bu bir **ürün kararı**, oynatıcı ayarı değil:
- * hangi tuşların çıkacağı sürücü/dinleyici davranışına göre değişir ve
- * gerekçesiyle birlikte tek yerde durmalı. `TrackPlayerAudioService` yalnızca
- * bu listeyi uygular.
+ * Oynatma kartındaki taşıma tuşları — tek karar noktası.
+ * Ürün kararıdır, oynatıcı ayarı değil; servis yalnızca uygular.
  */
 
 /**
- * iOS kartta **en fazla üç** taşıma tuşu çizer ve iki tuş çiftini BİRDEN
- * göstermez: ya bölüm değiştirme ya sarma.
- *
- *  - `episode` → ⏮ ⏯ ⏭ — kuyrukta önceki/sonraki bölüm,
- *  - `seek`    → ⏪ ⏯ ⏩ — bölüm içinde geri/ileri sarma (podcast geleneği).
- *
- * Seçim **uygulama geneldir**: kilit ekranı, Dynamic Island ve CarPlay aynı
- * kümeyi gösterir. `seek` seçildiğinde araçta bölüm değiştirme tuşları
- * kaybolur (kuyruk yine CarPlay'in "Sıradakiler" listesinden gezilebilir).
+ * iOS kartta en fazla üç tuş çizer ve iki çifti birden göstermez:
+ * `episode` → ⏮ ⏯ ⏭, `seek` → ⏪ ⏯ ⏩. Seçim uygulama geneldir.
  */
 export type RemoteControlLayout = 'episode' | 'seek';
 
 /**
- * Uygulamanın seçimi: **bölüm değiştirme**.
- *
- * Araçta bölüm değiştirmek sarmadan daha sık gerekir ve sarma zaten sürgüyle
- * yapılabiliyor. Karar `seek`e çevrilirse tek değişecek yer burasıdır; bedeli
- * CarPlay ve kilit ekranında önceki/sonraki bölüm tuşlarının kaybolmasıdır.
+ * Bölüm değiştirme seçildi: araçta sarmadan daha sık gerekir ve sarma zaten
+ * sürgüyle yapılabiliyor. Değiştirilirse tek yer burasıdır.
  */
 export const REMOTE_CONTROL_LAYOUT: RemoteControlLayout = 'episode';
 
-/** Sarma tuşlarının adımları — Apple Podcasts'in alışkanlık yarattığı değerler. */
+/** Apple Podcasts'in alışkanlık yarattığı sarma adımları. */
 export const SEEK_FORWARD_SEC = 30;
 export const SEEK_BACKWARD_SEC = 15;
 
 /**
- * Uzaktan kumandanın KABUL ETTİĞİ komutlar.
+ * Kumandanın kabul ettiği komutlar.
  *
- * `Stop` bilinçli olarak YOK: Apple onu canlı yayınlar için ayırır ve açık
- * bırakıldığında sistem duraklat yerine bir "durdur" karesi çizebiliyor.
- * Podcast'te doğru fiil duraklatmaktır; durdurma zaten kartı kapatmakla
- * aynı işi görür.
- *
- * `SeekTo` her zaman açıktır: sürgüyle konum değiştirme tuşlardan bağımsızdır
- * ve iki düzende de çalışır.
+ * `Stop` yok: Apple onu canlı yayına ayırır ve duraklat yerine "durdur" karesi
+ * çizebiliyor. `SeekTo` her düzende açık — sürgü tuşlardan bağımsızdır.
  */
 export const remoteCapabilities = (layout: RemoteControlLayout): Capability[] => [
   Capability.Play,
@@ -57,10 +37,7 @@ export const remoteCapabilities = (layout: RemoteControlLayout): Capability[] =>
 ];
 
 /**
- * Android bildirimindeki ÇİZİLEN tuşlar.
- *
- * `remoteCapabilities` uzaktan kumandanın neyi kabul ettiğini söyler; bu liste
- * bildirimde neyin görüneceğini. `SeekTo` dışarıda: o bir tuş değil sürgüdür.
+ * Android bildiriminde çizilen tuşlar. `SeekTo` dışarıda: tuş değil sürgüdür.
  */
 export const notificationCapabilities = (layout: RemoteControlLayout): Capability[] =>
   remoteCapabilities(layout).filter(capability => capability !== Capability.SeekTo);

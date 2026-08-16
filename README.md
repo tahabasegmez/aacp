@@ -1,4 +1,4 @@
-# AACP — Anadolu Ajansı Podcast
+# AACP — Podcast
 
 A React Native podcast app for **iOS (with Apple CarPlay)** and **Android**,
 backed by a Cloudflare Worker API. Show and episode data comes from RSS feeds.

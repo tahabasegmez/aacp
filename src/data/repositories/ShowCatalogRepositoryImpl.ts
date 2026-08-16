@@ -23,7 +23,7 @@ export interface RemoteCatalogConfig {
 }
 
 /**
- * RemoteShowCatalogRepository — şov kataloğu SUNUCUDAN gelir.
+ * ShowCatalogRepositoryImpl — şov kataloğu SUNUCUDAN gelir.
  *
  * Öncelik sırası:
  *   1) TTL içinde önbellek varsa onu kullan (ağa çıkma),
@@ -40,7 +40,7 @@ export interface RemoteCatalogConfig {
  * Boş bir uzak liste hatalı deploy sayılır ve önbelleğe yazılmaz (tüm şovları
  * yanlışlıkla gizlememek için).
  */
-export class RemoteShowCatalogRepository implements ShowCatalogRepository {
+export class ShowCatalogRepositoryImpl implements ShowCatalogRepository {
   constructor(
     private readonly remote: RemoteCatalogDataSource,
     private readonly storage: KeyValueStorage,

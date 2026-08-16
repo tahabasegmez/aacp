@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android Auto yetenek beyanı.
+
+  Android Auto, telefondaki uygulamaları TARAR ve yalnızca bu dosyayı bildiren
+  uygulamaları araç ekranında listeler. Bildirilmezse uygulama menüde HİÇ
+  görünmez — oynatma servisi ve medya oturumu eksiksiz çalışsa bile.
+
+  `media`: bu bir medya uygulamasıdır. (Diğer değer `notification`'dır ve
+  mesajlaşma uygulamaları içindir; bizde karşılığı yok.)
+-->
+<automotiveApp>
+    <uses name="media" />
+</automotiveApp>

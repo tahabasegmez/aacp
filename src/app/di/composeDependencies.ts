@@ -43,7 +43,7 @@ import {
   ToggleSavedEpisode,
 } from '@domain/usecases';
 import {
-  ApiDeviceSessionRepository,
+  DeviceSessionRepositoryImpl,
   ApiEpisodePageRepository,
   ApiSyncTransport,
   DownloadRepositoryImpl,
@@ -59,7 +59,7 @@ import {
   QueueSyncAdapter,
   UserRepositoryImpl,
   SyncEngine,
-  RemoteShowCatalogRepository,
+  ShowCatalogRepositoryImpl,
   InMemoryFeedCacheDataSource,
   PlaybackProgressRepositoryImpl,
   PlaybackQueueRepositoryImpl,
@@ -67,7 +67,7 @@ import {
   RemoteCatalogDataSource,
   RssFeedDataSource,
   RssFeedSource,
-  PlaylistBackedSavedEpisodes,
+  SavedEpisodesRepositoryImpl,
   PlaylistRepositoryImpl,
 } from '@data';
 import {
@@ -127,7 +127,7 @@ export const composeDependencies = (): AppDependencies => {
   const userRepository = new UserRepositoryImpl(api, storage);
   // "Aynı hesapta tek cihaz" oturumu — kural sunucuda zorlanır, istemci
   // yalnızca devralır/bırakır ve sonucu gösterir.
-  const deviceSession = new ApiDeviceSessionRepository(api, Platform.OS);
+  const deviceSession = new DeviceSessionRepositoryImpl(api, Platform.OS);
 
   // Oynatıcı — oynatma kuyruğunun da sahibidir (bkz. AudioPlayerService).
   //
@@ -179,7 +179,7 @@ export const composeDependencies = (): AppDependencies => {
   // Katalog sunucudaki `shows` tablosundan gelir; uygulamaya gömülü liste YOK.
   // Adres yoksa (backend kapalı) katalog boş kalır — bu bilinçli: iki ayrı
   // kaynak tutmak, ikisinin sessizce ayrışması demekti.
-  const catalogRepo = new RemoteShowCatalogRepository(
+  const catalogRepo = new ShowCatalogRepositoryImpl(
     remoteCatalog,
     storage,
     logger,
@@ -196,7 +196,7 @@ export const composeDependencies = (): AppDependencies => {
   );
   // "Sonra dinle" bağımsız bir depo DEĞİL, playlist sisteminin sistem
   // listesidir. Tek kaynak: aynı veri iki yerde tutulmaz, bir kez senkronlanır.
-  const savedRepo = new PlaylistBackedSavedEpisodes(playlistRepo);
+  const savedRepo = new SavedEpisodesRepositoryImpl(playlistRepo);
   const preferencesRepo = new PreferencesRepositoryImpl(storage);
 
   // domain use case'leri — kataloglar

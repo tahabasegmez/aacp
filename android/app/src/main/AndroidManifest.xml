@@ -42,6 +42,20 @@
       android:theme="@style/AppTheme"
       android:usesCleartextTraffic="${usesCleartextTraffic}"
       android:supportsRtl="true">
+
+      <!--
+        Android Auto: uygulamayı araç ekranında GÖRÜNÜR yapar.
+
+        Oynatma servisi (MusicService) ve medya oturumu react-native-track-player
+        tarafından zaten sağlanıyor; servis `MediaLibraryService` ve
+        `MediaBrowserService` intent filtreleriyle birleşmiş manifeste geliyor.
+        Eksik olan tek şey bu beyandı: Android Auto yüklü uygulamaları tarar ve
+        `com.google.android.gms.car.application` üst verisi olmayanı listelemez.
+      -->
+      <meta-data
+        android:name="com.google.android.gms.car.application"
+        android:resource="@xml/automotive_app_desc" />
+
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -61,7 +75,7 @@
           uygulama kuruluysa buraya yönlendirir. https bağlantısını doğrudan
           yakalamak (App Links) alan adının kökünde `assetlinks.json` ister;
           uygulama mağazada yayımlanıp imza parmak izi belli olduğunda
-          eklenecektir (bkz. docs/DEEPLINKS.md).
+          eklenecektir.
         -->
         <intent-filter>
             <action android:name="android.intent.action.VIEW" />

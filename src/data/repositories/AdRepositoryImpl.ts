@@ -10,7 +10,7 @@ const MAX_WRAPPER_DEPTH = 4;
 /** Reklam isteği için zaman aşımı — dinleme akışını bekletmemeli. */
 const AD_TIMEOUT_MS = 5_000;
 
-export interface VastAdRepositoryOptions {
+export interface AdRepositoryImplOptions {
   /**
    * Reklam etiketi (ad tag) URL'i. Reklam sunucusundan alınır ve hedefleme
    * parametreleriyle (bölüm/şov) doldurulur.
@@ -22,7 +22,7 @@ export interface VastAdRepositoryOptions {
 }
 
 /**
- * VastAdRepository — AdRepository portunun VAST implementasyonu.
+ * AdRepositoryImpl — AdRepository portunun VAST implementasyonu.
  *
  * Sorumlulukları:
  *  - Ad tag URL'ini hedefleme parametreleriyle doldurup çağırmak,
@@ -34,11 +34,11 @@ export interface VastAdRepositoryOptions {
  * oynatma reklamsız devam eder. Reklam altyapısı hiçbir koşulda dinleme
  * deneyimini bloke etmemelidir.
  */
-export class VastAdRepository implements AdRepository {
+export class AdRepositoryImpl implements AdRepository {
   constructor(
     private readonly http: HttpClient,
     private readonly logger: Logger,
-    private readonly options: VastAdRepositoryOptions,
+    private readonly options: AdRepositoryImplOptions,
   ) {}
 
   async getAdBreak(request: AdRequest): Promise<Result<AdBreak | null>> {

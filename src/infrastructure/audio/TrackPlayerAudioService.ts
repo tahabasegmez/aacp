@@ -69,19 +69,8 @@ export class TrackPlayerAudioService implements AudioPlayerService {
 
   private state: PlaybackState = INITIAL_PLAYBACK_STATE;
   private readonly listeners = new Set<(state: PlaybackState) => void>();
-  /** Kilit ekranı / Dynamic Island kartının "çalıyor mu" bilgisi. */
   private readonly nowPlayingSession = new NativeNowPlayingSession();
   private readonly subscriptions: Array<{ remove: () => void }> = [];
-  /**
-   * Süren/biten kurulum — BAYRAK DEĞİL, SÖZ tutulur.
-   *
-   * Kurulumu artık iki bağımsız yüzey isteyebiliyor (telefon arayüzü ve CarPlay
-   * sahnesi) ve hangisinin önce geleceği belli değil. Bayrak yeterli değildi:
-   * iki çağrı aynı anda gelirse ikisi de bayrağı boş görür, `setupPlayer` iki
-   * kez çalışır ve ikincisi `player_already_initialized` ile patlardı. Söz
-   * hatırlandığında ikinci çağıran aynı kurulumu BEKLER — döndüğünde oynatıcı
-   * gerçekten hazırdır.
-   */
   private setupPromise?: Promise<void>;
 
   setup(): Promise<void> {
@@ -101,70 +90,29 @@ export class TrackPlayerAudioService implements AudioPlayerService {
     // iOS: Playback kategorisi + SpokenAudio modu → arka plan sesi VE Now Playing
     // (kilit ekranı + Dynamic Island medya kartı). Podcast için doğru profil.
     await TrackPlayer.setupPlayer({
-      /**
-       * KESİNTİ YÖNETİMİ — telefonda başka bir ses çalarsa podcast durur,
-       * o ses bitince kaldığı yerden devam eder.
-       *
-       * Bu iş elle YAPILMAZ; platformların kendi mekanizması kullanılır:
-       *  - iOS: `AVAudioSession` kesinti bildirimi. Kesinti başlayınca sistem
-       *    oturumu askıya alır (oynatma kendiliğinden durur); bitişte sistem
-       *    "devam edilebilir" derse kütüphane `play()` çağırır.
-       *  - Android: ExoPlayer'ın ses odağı (audio focus) yönetimi. Odak
-       *    kaybedilince duraklar, geri alınınca devam eder.
-       *
-       * İkisinin de inceliği "kullanıcı zaten duraklatmış mıydı" ayrımıdır ve
-       * ikisi de bunu kendisi bilir — kendi bayrağımızı tutmak, kullanıcının
-       * bilerek duraklattığı bölümü bildirim sesi sonrası çalmaya başlamak
-       * demekti.
-       */
       autoHandleInterruptions: true,
       iosCategory: IOSCategory.Playback,
       iosCategoryMode: IOSCategoryMode.SpokenAudio,
-      /**
-       * Android'de KISA kesintilerde (bildirim, navigasyon anonsu) sesin
-       * kısılması yerine DURAKLAMASI için içerik türü konuşma olmalı.
-       *
-       * Varsayılan `Music` ile ExoPlayer `AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK`
-       * geldiğinde yalnızca sesi kısar ("ducking"). Müzikte doğru davranış
-       * budur ama konuşmada değil: kısılmış bir podcast anlaşılmaz, kullanıcı
-       * o cümleyi kaçırır. `Speech` ile aynı kesinti duraklama üretir ve
-       * bitince oynatma devam eder.
-       */
       androidAudioContentType: AndroidAudioContentType.Speech,
     });
     try {
       await TrackPlayer.updateOptions({
         progressUpdateEventInterval: 1,
-        // Oynatma kartındaki taşıma tuşları TEK yerden gelir: hangi tuşların
-        // çıkacağı bir ürün kararıdır, oynatıcı ayarı değil (remoteControls).
         capabilities: remoteCapabilities(REMOTE_CONTROL_LAYOUT),
-        // (v4'teki `compactCapabilities` v5'te kaldırıldı; daraltılmış
-        // bildirim ayrı olarak yapılandırılmıyor.)
         notificationCapabilities: notificationCapabilities(REMOTE_CONTROL_LAYOUT),
         forwardJumpInterval: SEEK_FORWARD_SEC,
         backwardJumpInterval: SEEK_BACKWARD_SEC,
         android: {
           appKilledPlaybackBehavior:
             AppKilledPlaybackBehavior.StopPlaybackAndRemoveNotification,
-          // Kısa kesintilerde de duraklama olayı üretilsin — `Speech` içerik
-          // türüyle birlikte "her kesintide durakla" davranışını tamamlar.
           alwaysPauseOnInterruption: true,
         },
       });
     } catch (error) {
-      // Kart yapılandırılamazsa oynatma yine kurulmalı: aksi halde durum
-      // dinleyicileri hiç bağlanmaz ve tüm oynatma arayüzü sessizce ölür.
       this.logger?.error('Oynatma kartı yapılandırılamadı', error);
     }
     this.registerListeners();
   }
-
-  // --- kuyruk ---------------------------------------------------------------
-  //
-  // Sıralama işlerinin tamamı track-player'ın KENDİ kuyruğuna devredilir
-  // (`setQueue`, `add`, `move`, `remove`, `skip*`). Uygulama ikinci bir kuyruk
-  // TUTMAZ: kilit ekranı, Dynamic Island, CarPlay ve direksiyon tuşları aynı
-  // sırayı görsün diye tek gerçek kaynak burasıdır.
 
   async setQueue(
     episodes: readonly Episode[],
