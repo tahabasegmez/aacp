@@ -1,58 +1,38 @@
-# src/ — Katman Haritası
+# src
 
-Bu proje **Clean Architecture** kullanır. Ayrıntılı anlatım: [../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)
-
-Bağımlılık yönü her zaman **içe doğru**. `domain` hiçbir şeye bağımlı değildir.
+Clean Architecture. Dependencies always point inward, and `domain` depends on
+nothing.
 
 ```
-src/
-├── core/            Paylaşılan kernel — config, error/Result, logger, DI, ports, utils
-│                    (iş kuralı yok, hiçbir katmana bağımlı değil)
-│
-├── domain/          İŞ KURALI (kalp) — saf TypeScript, platform bağımsız
-│   ├── entities/    Show, Episode, PodcastFeed, PlaybackState, Download
-│   ├── repositories/  Veri erişim PORT'ları (arayüz)
-│   ├── services/    AudioPlayerService PORT'u
-│   └── usecases/    GetShowCatalog, GetPodcastFeed, PlayEpisode ...
-│
-├── data/            domain portlarının implementasyonu
-│   ├── dto/         RSS ham veri şekilleri
-│   ├── mappers/     DTO → domain entity dönüşümü
-│   ├── datasources/ remote (RSS/HTTP) + local (cache)
-│   └── repositories/  Repository implementasyonları
-│
-├── infrastructure/  Somut teknoloji adaptörleri
-│   ├── network/     FetchHttpClient  (HttpClient portu)
-│   ├── rss/         FastXmlParser    (XmlParser portu)
-│   ├── audio/       TrackPlayerAudioService (AudioPlayerService portu)
-│   └── storage/     KeyValueStorage
-│
-├── presentation/    React Native mobil UI (iOS öncelikli)
-│   ├── di/          DependencyProvider + useDependencies
-│   ├── theme/       Tema token'ları + ThemeProvider
-│   ├── query/       TanStack Query hook'ları (use case'leri sarar)
-│   ├── stores/      Zustand (playerStore)
-│   ├── navigation/  React Navigation
-│   └── features/    shows/, player/ ... (her feature kendi screens/components)
-│
-├── carplay/         Apple CarPlay yüzeyi — aynı use case'leri kullanır
-│   ├── controllers/ CarPlayController (şablon yaşam döngüsü)
-│   └── ...          templates (sonraki faz)
-│
-└── app/             COMPOSITION ROOT — her şeyi bağlayan tek yer
-    ├── di/          composeDependencies (tüm `new XyzImpl()` burada)
-    └── AppRoot.tsx  Sağlayıcılar + navigasyon
+core            shared kernel — config, errors, ports, utils
+domain          business rules — entities, repository ports, use cases
+data            repository implementations, mappers, sync adapters
+infrastructure  fetch, RSS, track-player, MMKV, downloads, telemetry
+presentation    React Native UI — screens, stores, queries, theme
+carplay         CarPlay surface — same use cases, its own templates
+app             composition root — the only place things are wired together
 ```
 
-## Import kuralı (path alias)
-`@core`, `@domain`, `@data`, `@infrastructure`, `@presentation`, `@carplay`, `@app`
-takma adları `tsconfig.json` + `babel.config.js`'de tanımlı. Örnek:
+## Where things go
+
+- **Business rule** → `domain/usecases`. Plain TypeScript, no React or libraries.
+- **New data source or player library** → one adapter in `data` or `infrastructure`.
+- **Screen** → `presentation/features/<feature>`, with its own components.
+- **Component used by several features** → `presentation/shared/components`.
+- **`new SomeImpl()`** → `app/di`, nowhere else.
+
+## Imports
+
+Path aliases: `@core`, `@domain`, `@data`, `@infrastructure`, `@presentation`,
+`@carplay`, `@app`.
 
 ```ts
 import { Show } from '@domain/entities';
 import { useShowsQuery } from '@presentation';
 ```
 
-> **Altın kural:** `presentation` ve `carplay`, `data`/`infrastructure`'ı ASLA
-> doğrudan import etmez. Yalnızca `@domain` use case'lerini kullanır; somut
-> nesneler `app/di` üzerinden enjekte edilir.
+## The one rule
+
+`presentation` and `carplay` never import `data` or `infrastructure`, and never
+import each other. They use `@domain` use cases only; concrete objects are
+injected from `app/di`.

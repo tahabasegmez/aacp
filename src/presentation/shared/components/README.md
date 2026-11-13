@@ -1,8 +1,7 @@
 # shared/components
 
-Birden fazla feature'ın paylaştığı sunum bileşenleri buraya (ör. `Button`,
-`ArtworkImage`, `EmptyState`, `ErrorView`). Bir bileşen yalnızca tek bir
-feature'a aitse, o feature'ın kendi `components/` klasöründe kalmalı.
+Components used by more than one feature, such as `Button`, `ArtworkImage`,
+`EmptyState` and `ErrorView`. A component used by a single feature stays in
+that feature's own `components/` folder.
 
-Kural: buradaki bileşenler "aptal" (dumb) olmalı — iş mantığı/veri çağrısı
-içermez, yalnızca prop alıp gösterir.
+Keep them dumb: take props and render. No business logic, no data fetching.
