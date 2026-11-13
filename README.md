@@ -3,6 +3,21 @@
 A React Native podcast app for **iOS (with Apple CarPlay)** and **Android**,
 backed by a Cloudflare Worker API. Show and episode data comes from RSS feeds.
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/search.png" width="24%" alt="Search" />
+  <img src="docs/screenshots/show.png" width="24%" alt="Show page" />
+  <img src="docs/screenshots/player.png" width="24%" alt="Player" />
+</p>
+
+### CarPlay
+
+<p align="center">
+  <img src="docs/screenshots/carplay-home.png" width="49%" alt="CarPlay home" />
+  <img src="docs/screenshots/carplay-now-playing.png" width="49%" alt="CarPlay now playing" />
+</p>
+
 ## Quick start
 
 ```sh
